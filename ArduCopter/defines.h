@@ -184,7 +184,9 @@ enum GuidedMode {
     Guided_TakeOff,
     Guided_WP,
     Guided_Velocity,
-    Guided_PosVel
+    Guided_PosVel,
+    Guided_Accel_xy,
+    Guided_Accel_xyz
 };
 
 // RTL states
@@ -410,6 +412,7 @@ enum FlipState {
 #define MAVLINK_SET_POS_TYPE_MASK_POS_IGNORE      ((1<<0) | (1<<1) | (1<<2))
 #define MAVLINK_SET_POS_TYPE_MASK_VEL_IGNORE      ((1<<3) | (1<<4) | (1<<5))
 #define MAVLINK_SET_POS_TYPE_MASK_ACC_IGNORE      ((1<<6) | (1<<7) | (1<<8))
+#define MAVLINK_SET_POS_TYPE_MASK_ACC_XY_IGNORE   ((1<<6) | (1<<7))
 #define MAVLINK_SET_POS_TYPE_MASK_FORCE           (1<<9)
 #define MAVLINK_SET_POS_TYPE_MASK_YAW_IGNORE      (1<<10)
 #define MAVLINK_SET_POS_TYPE_MASK_YAW_RATE_IGNORE (1<<11)

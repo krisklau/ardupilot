@@ -268,6 +268,20 @@ public:
     // time_since_last_xy_update - returns time in seconds since the horizontal position controller was last run
     float time_since_last_xy_update() const;
 
+    ///
+	/// xy accel controller
+	///
+
+	void init_accel_controller_xy();
+
+	void set_accel_target_xy(const Vector3f& accel_target) {_accel_target.x = accel_target.x; _accel_target.y = accel_target.y; };
+
+	void update_accel_controller_xy(float ekfNavVelGainScaler);
+
+	void init_accel_controller_z();
+	void set_accel_target_z(const Vector3f& accel_target) {_accel_target.z = accel_target.z;};
+	void update_accel_controller_z();
+
     static const struct AP_Param::GroupInfo var_info[];
 
 private:

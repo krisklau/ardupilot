@@ -1495,6 +1495,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         bool pos_ignore      = packet.type_mask & MAVLINK_SET_POS_TYPE_MASK_POS_IGNORE;
         bool vel_ignore      = packet.type_mask & MAVLINK_SET_POS_TYPE_MASK_VEL_IGNORE;
         bool acc_ignore      = packet.type_mask & MAVLINK_SET_POS_TYPE_MASK_ACC_IGNORE;
+        bool acc_xy_ignore   = packet.type_mask & MAVLINK_SET_POS_TYPE_MASK_ACC_XY_IGNORE;
 
         /*
          * for future use:
@@ -1535,6 +1536,22 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             }
         }
 
+        // Prepare acceleration
+        Vector3f acc_vector;
+        if (!acc_ignore || !acc_xy_ignore) {
+        	// Convert to cm
+        	if (acc_ignore) {
+    			acc_vector = Vector3f(packet.afx * 100.0f, packet.afy * 100.0f, 0.0f);
+        	} else {
+        		acc_vector = Vector3f(packet.afx * 100.0f, packet.afy * 100.0f, -packet.afz * 100.0f);
+        	}
+
+        	// rotate to body-frame if necessary
+        	if (packet.coordinate_frame == MAV_FRAME_BODY_NED || packet.coordinate_frame == MAV_FRAME_BODY_OFFSET_NED) {
+				copter.rotate_body_frame_to_NE(acc_vector.x, acc_vector.y);
+			}
+        }
+
         // send request
         if (!pos_ignore && !vel_ignore && acc_ignore) {
             copter.guided_set_destination_posvel(pos_vector, vel_vector);
@@ -1542,6 +1559,10 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             copter.guided_set_velocity(vel_vector);
         } else if (!pos_ignore && vel_ignore && acc_ignore) {
             copter.guided_set_destination(pos_vector);
+        } else if (pos_ignore && vel_ignore && acc_ignore && !acc_xy_ignore) {
+        	copter.guided_set_target_xy_accel(acc_vector);
+        } else if (pos_ignore && vel_ignore && !acc_ignore && !acc_xy_ignore) {
+        	copter.guided_set_target_xyz_accel(acc_vector);
         } else {
             result = MAV_RESULT_FAILED;
         }
